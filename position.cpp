@@ -17,31 +17,35 @@ Position::Position() {
 
 Position::~Position() {}
 
-inline bit_board Position::white_men() const {
+inline bit_board_t Position::white_men() const {
     return bit_boards.white_men;
 }
 
-inline bit_board Position::black_men() const {
+inline bit_board_t Position::black_men() const {
     return bit_boards.black_men;
 }
 
-inline bit_board Position::white_kings() const {
+inline bit_board_t Position::white_kings() const {
     return bit_boards.white_kings;
 }
 
-inline bit_board Position::black_kings() const {
+inline bit_board_t Position::black_kings() const {
     return bit_boards.black_kings;
 }
 
-inline bit_board Position::white_pieces() const {
+inline bit_board_t Position::white_pieces() const {
     return bit_boards.white_men & bit_boards.white_kings;
 }
 
-inline bit_board Position::black_pieces() const {
+inline bit_board_t Position::black_pieces() const {
     return bit_boards.black_men & bit_boards.black_kings;
 }
 
-inline bit_board Position::pieces() const {
+inline bit_board_t Position::pieces() const {
     return bit_boards.white_men & bit_boards.white_kings &
            bit_boards.black_men & bit_boards.black_kings;
+}
+
+inline bit_board_t Position::empties() const {
+    return ~pieces();
 }

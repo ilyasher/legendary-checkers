@@ -1,7 +1,7 @@
 #include <cstdint>
 
 /** A type to distinguish the two players. */
-enum color { white, black };
+enum color_t { white, black };
 
 /**
  * A type that stores 64 bits - one for each square on the board.
@@ -10,7 +10,7 @@ enum color { white, black };
  * int is actually needed. But we have lots of memory and not a lot
  * of patience.
  */
-using bit_board = uint64_t;
+using bit_board_t = uint64_t;
 
 /**
  * A class that represents a state of the game.
@@ -21,17 +21,17 @@ class Position {
      * This struct stores which squares hold which type of pieces.
      */
     struct BitBoards {
-        bit_board white_men;
-        bit_board black_men;
-        bit_board white_kings;
-        bit_board black_kings;
+        bit_board_t white_men;
+        bit_board_t black_men;
+        bit_board_t white_kings;
+        bit_board_t black_kings;
     };
 
     /** The current state of the board. */
     BitBoards bit_boards;
 
     /** Whose turn it currently is. */
-    color turn;
+    color_t turn;
 
     /**
      * The number of moves that have been played up to this point.
@@ -49,24 +49,27 @@ public:
     ~Position();
 
     /** Returns which squares hold white men. */
-    bit_board white_men() const;
+    bit_board_t white_men() const;
 
     /** Returns which squares hold black men. */
-    bit_board black_men() const;
+    bit_board_t black_men() const;
 
     /** Returns which squares hold white kings. */
-    bit_board white_kings() const;
+    bit_board_t white_kings() const;
 
     /** Returns which squares hold black kings. */
-    bit_board black_kings() const;
+    bit_board_t black_kings() const;
 
     /** Returns which squares hold white pieces of any type (men or kings). */
-    bit_board white_pieces() const;
+    bit_board_t white_pieces() const;
 
     /** Returns which squares hold black pieces of any type (men or kings). */
-    bit_board black_pieces() const;
+    bit_board_t black_pieces() const;
 
     /** Returns which squares have any pieces at all. */
-    bit_board pieces() const;
+    bit_board_t pieces() const;
+
+    /** Return all the empty squares. */
+    bit_board_t empties() const;
 
 };
