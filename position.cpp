@@ -50,7 +50,7 @@ inline bit_board_t Position::empties() const {
     return ~pieces();
 }
 
-std::vector<Move> Position::get_all_legal_moves() {
+std::vector<Move> Position::get_all_legal_moves() const {
 
     std::vector<Move> legal_moves;
 
@@ -70,7 +70,8 @@ void Position::get_piece_moves(
     std::vector<Move> &legal_moves,
     bit_board_t piece_board,
     bit_board_t enemy_board,
-    std::vector<Move> template_piece_moves) {
+    std::vector<Move> template_piece_moves
+) const {
 
     for (square_t square : get_squares(piece_board)) {
 
