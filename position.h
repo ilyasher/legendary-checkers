@@ -34,6 +34,12 @@ class Position {
      */
     uint16_t n_moves;
 
+    /**
+     * The piece currently capturing other pieces.
+     * If this is not NONE, another capture may be played by that piece.
+     */
+    square_t capturer;
+
 public:
 
     /** Constructor. Sets up the initial position. */
@@ -84,13 +90,19 @@ public:
      *                    that can be captured by the pieces in piece_board.
      * @param template_piece_moves A vector of template Moves the a single piece
      *                             can hypothetically make.
+     * @param must_capture Whether the move must be a capture to be legal. This
+     *                     happens in the middle of a capturing sequence.
      */
     void get_piece_moves(
         std::vector<Move> &legal_moves,
         bit_board_t piece_board,
         bit_board_t enemy_board,
-        std::vector<Move> template_piece_moves
+        std::vector<Move> template_piece_moves,
+        bool must_capture
     ) const;
+
+    /** Play a given move on this position, modifying it. */
+    // void play_move(Move move);
 
 };
 

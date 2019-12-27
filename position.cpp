@@ -54,15 +54,42 @@ std::vector<Move> Position::get_all_legal_moves() const {
 
     std::vector<Move> legal_moves;
 
-    // TODO: add being able to pass if you jumped
+    /* If the position is immediately follows a capture. */
+    if (capturer != NONE) {
 
-    get_piece_moves(legal_moves, white_men(), black_pieces(), FORWARD_MOVES);
-    get_piece_moves(legal_moves, black_men(), white_pieces(), BACKWARD_MOVES);
-    get_piece_moves(legal_moves, white_kings(), black_pieces(), FORWARD_MOVES);
-    get_piece_moves(legal_moves, white_kings(), black_pieces(), BACKWARD_MOVES);
-    get_piece_moves(legal_moves, black_kings(), white_pieces(), FORWARD_MOVES);
-    get_piece_moves(legal_moves, black_kings(), white_pieces(), BACKWARD_MOVES);
+        /** A board that is just the capturing piece. */
+        bit_board_t capturer_board = square_to_bitboard(capturer);
 
+        if (turn == white) {
+            get_piece_moves(legal_moves, capturer_board, black_pieces(), FORWARD_MOVES, true);
+
+            /** If the capturer is a king. */
+            if (square_is_on(white_kings(), capturer)) {
+                get_piece_moves(legal_moves, capturer_board, black_pieces(), BACKWARD_MOVES, true);
+            }
+        }
+        else {
+            get_piece_moves(legal_moves, capturer_board, white_pieces(), BACKWARD_MOVES, true);
+
+            /** If the capturer is a king. */
+            if (square_is_on(black_kings(), capturer)) {
+                get_piece_moves(legal_moves, capturer_board, white_pieces(), FORWARD_MOVES, true);
+            }
+        }
+        legal_moves.push_back(MOVE_PASS);
+        return legal_moves;
+    }
+
+    if (turn == white) {
+        get_piece_moves(legal_moves, white_men(), black_pieces(), FORWARD_MOVES, false);
+        get_piece_moves(legal_moves, white_kings(), black_pieces(), FORWARD_MOVES, false);
+        get_piece_moves(legal_moves, white_kings(), black_pieces(), BACKWARD_MOVES, false);
+    }
+    else {
+        get_piece_moves(legal_moves, black_men(), white_pieces(), BACKWARD_MOVES, false);
+        get_piece_moves(legal_moves, black_kings(), white_pieces(), FORWARD_MOVES, false);
+        get_piece_moves(legal_moves, black_kings(), white_pieces(), BACKWARD_MOVES, false);
+    }
     return legal_moves;
 }
 
@@ -70,7 +97,8 @@ void Position::get_piece_moves(
     std::vector<Move> &legal_moves,
     bit_board_t piece_board,
     bit_board_t enemy_board,
-    std::vector<Move> template_piece_moves
+    std::vector<Move> template_piece_moves,
+    bool must_capture
 ) const {
 
     for (square_t square : get_squares(piece_board)) {
@@ -78,16 +106,21 @@ void Position::get_piece_moves(
         for (Move candidate_move : template_piece_moves) {
 
             candidate_move.to += square;
-            if (!get_square(empties(), candidate_move.to)) {
+            if (!square_is_on(empties(), candidate_move.to)) {
                 continue;
             }
 
-            if (candidate_move.over != NONE) {
+            if (candidate_move.over == NONE) {
+                if (must_capture) {
+                    continue;
+                }
+            } else {
                 candidate_move.over += square;
-                if (!get_square(enemy_board, candidate_move.over)) {
+                if (!square_is_on(enemy_board, candidate_move.over)) {
                     continue;
                 }
             }
+
             candidate_move.from += square;
 
             legal_moves.push_back(candidate_move);

@@ -43,9 +43,14 @@ const std::vector<Move> FORWARD_MOVES = {
  */
 std::vector<square_t> get_squares(bit_board_t board);
 
+/** Returns a bit_board_t with only one square on. */
+inline bit_board_t square_to_bitboard(square_t square) {
+    return 1 << square;
+}
+
 /** Returns whether a given square on a given bitboard is on. */
 inline bool square_is_on(bit_board_t board, square_t square) {
-    return board & (1 << square);
+    return board & square_to_bitboard(square);
 }
 
 #endif // RULEBOOK_H

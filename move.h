@@ -20,4 +20,6 @@ struct Move {
     square_t over; /**< If Move is a capture, the square it jumps. Else, NONE. */
 };
 
+const Move MOVE_PASS = Move{true, NONE, NONE, NONE};
+
 #endif // MOVE_H
