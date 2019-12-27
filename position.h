@@ -1,16 +1,10 @@
+#ifndef POSITION_H
+#define POSITION_H
+
+#include "rulebook.h"
+#include "types.h"
 #include <cstdint>
-
-/** A type to distinguish the two players. */
-enum color_t { white, black };
-
-/**
- * A type that stores 64 bits - one for each square on the board.
- * An on bit represents that the square contains a certain type of piece.
- * In checkers, only 32 squares can have pieces on them, so only a 32-bit
- * int is actually needed. But we have lots of memory and not a lot
- * of patience.
- */
-using bit_board_t = uint64_t;
+#include <vector>
 
 /**
  * A class that represents a state of the game.
@@ -72,4 +66,14 @@ public:
     /** Return all the empty squares. */
     bit_board_t empties() const;
 
+    std::vector<Move> get_all_legal_moves();
+
+    void get_piece_moves(
+        std::vector<Move> &legal_moves,
+        bit_board_t piece_board,
+        bit_board_t enemy_board,
+        std::vector<Move> template_piece_moves);
+
 };
+
+#endif // POSITION_H

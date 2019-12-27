@@ -49,3 +49,47 @@ inline bit_board_t Position::pieces() const {
 inline bit_board_t Position::empties() const {
     return ~pieces();
 }
+
+std::vector<Move> Position::get_all_legal_moves() {
+
+    std::vector<Move> legal_moves;
+
+    // TODO: add being able to pass if you jumped
+
+    get_piece_moves(legal_moves, white_men(), black_pieces(), FORWARD_MOVES);
+    get_piece_moves(legal_moves, black_men(), white_pieces(), BACKWARD_MOVES);
+    get_piece_moves(legal_moves, white_kings(), black_pieces(), FORWARD_MOVES);
+    get_piece_moves(legal_moves, white_kings(), black_pieces(), BACKWARD_MOVES);
+    get_piece_moves(legal_moves, black_kings(), white_pieces(), FORWARD_MOVES);
+    get_piece_moves(legal_moves, black_kings(), white_pieces(), BACKWARD_MOVES);
+
+    return legal_moves;
+}
+
+void Position::get_piece_moves(
+    std::vector<Move> &legal_moves,
+    bit_board_t piece_board,
+    bit_board_t enemy_board,
+    std::vector<Move> template_piece_moves) {
+
+    for (square_t square : get_squares(piece_board)) {
+
+        for (Move candidate_move : template_piece_moves) {
+
+            candidate_move.to += square;
+            if (!get_square(empties(), candidate_move.to)) {
+                continue;
+            }
+
+            if (candidate_move.over != NONE) {
+                candidate_move.over += square;
+                if (!get_square(enemy_board, candidate_move.over)) {
+                    continue;
+                }
+            }
+            candidate_move.from += square;
+
+            legal_moves.push_back(candidate_move);
+        }
+    }
+}
