@@ -104,8 +104,8 @@ public:
     // /** Play a given move on this position, modifying it. */
     Position play_move(const Move &move) const;
 
-
-
 };
+
+std::ostream & operator<<(std::ostream &os, const Position &pos);
 
 #endif // POSITION_H

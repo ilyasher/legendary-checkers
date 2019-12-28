@@ -1,4 +1,5 @@
 #include "position.h"
+#include <iostream>
 
 Position::Position() {
     bit_boards = BitBoards{0, 0, 0, 0};
@@ -9,6 +10,7 @@ Position::Position() {
 
     turn = black;
     n_moves = 0;
+    capturer = NONE;
 }
 
 Position::~Position() {}
@@ -43,7 +45,7 @@ inline bit_board_t Position::pieces() const {
 }
 
 inline bit_board_t Position::empties() const {
-    return ~pieces();
+    return ~pieces() & LEGAL_SQUARES;
 }
 
 std::vector<Move> Position::get_all_legal_moves() const {
@@ -116,7 +118,6 @@ void Position::get_piece_moves(
                     continue;
                 }
             }
-
             candidate_move.from += square;
 
             legal_moves.push_back(candidate_move);
@@ -133,18 +134,19 @@ Position Position::play_move(const Move &move) const {
     }
 
     if (move.is_pass) {
+        new_position.capturer = NONE;
         return new_position;
     }
 
     // maybe a way to make this better? like with get_all_legal_moves
     if (turn == white) {
         if (square_is_on(bit_boards.white_men, move.from)) {
-            add_square(new_position.bit_boards.white_men, move.from);
-            remove_square(new_position.bit_boards.white_men, move.to);
+            add_square(new_position.bit_boards.white_men, move.to);
+            remove_square(new_position.bit_boards.white_men, move.from);
         }
         else {
-            add_square(new_position.bit_boards.white_kings, move.from);
-            remove_square(new_position.bit_boards.white_kings, move.to);
+            add_square(new_position.bit_boards.white_kings, move.to);
+            remove_square(new_position.bit_boards.white_kings, move.from);
         }
         if (move.is_capture()) {
             remove_square(new_position.bit_boards.black_men, move.over);
@@ -153,12 +155,12 @@ Position Position::play_move(const Move &move) const {
     }
     else {
         if (square_is_on(bit_boards.black_men, move.from)) {
-            add_square(new_position.bit_boards.black_men, move.from);
-            remove_square(new_position.bit_boards.black_men, move.to);
+            add_square(new_position.bit_boards.black_men, move.to);
+            remove_square(new_position.bit_boards.black_men, move.from);
         }
         else {
-            add_square(new_position.bit_boards.black_kings, move.from);
-            remove_square(new_position.bit_boards.black_kings, move.to);
+            add_square(new_position.bit_boards.black_kings, move.to);
+            remove_square(new_position.bit_boards.black_kings, move.from);
         }
         if (move.is_capture()) {
             remove_square(new_position.bit_boards.white_men, move.over);
@@ -166,7 +168,50 @@ Position Position::play_move(const Move &move) const {
         }
     }
 
+    new_position.capturer = move.over;
+
     // TODO: add piece promotion
 
     return new_position;
+}
+
+std::ostream & operator<<(std::ostream &os, const Position &pos) {
+
+    square_t square = 0;
+
+    for (int row = 0; row < 8; row ++) {
+
+        if (row == 0)
+            os << "   *---*---*---*---*---*---*---*---*\n";
+        else
+            os << "   *--- --- --- --- --- --- --- ---*\n";
+
+        for (int col = 0; col < 8; col ++) {
+
+            if (col == 0)
+                os << " " << row + 1 << " ";
+
+            os << "| ";
+
+            char to_print = ' ';
+            if (square_is_on(pos.white_men(), square))
+                to_print = 'O';
+            if (square_is_on(pos.black_men(), square))
+                to_print = 'X';
+            if (square_is_on(pos.white_kings(), square))
+                to_print = '@';
+            if (square_is_on(pos.black_kings(), square))
+                to_print = '%';
+
+            os << to_print;
+            os << " ";
+
+            square ++;
+        }
+        os << "|\n";
+
+    }
+    os << "   *---*---*---*---*---*---*---*---*\n";
+    os << "     A   B   C   D   E   F   G   H  \n";
+    return os;
 }

@@ -2,6 +2,7 @@
 #define RULEBOOK_H
 
 #include "types.h"
+#include <ostream>
 #include <vector>
 
 /** The number of squares on the board. */
@@ -12,6 +13,9 @@ const square_t ROW = 8;
 
 /** The number of index shifts skipping a column is equivalent to. */
 const square_t COL = 1;
+
+const bit_board_t LEGAL_SQUARES   = 0xaa55aa55aa55aa55;
+const bit_board_t ILLEGAL_SQUARES = ~LEGAL_SQUARES;
 
 /**
  * The list of moves a piece going down the board can make.
@@ -70,5 +74,9 @@ inline void add_square(bit_board_t &board, square_t square) {
 inline void remove_square(bit_board_t &board, square_t square) {
     board &= ~square_to_bitboard(square);
 }
+
+std::ostream & operator<<(std::ostream &os, square_t square);
+
+std::ostream & operator<<(std::ostream &os, const Move &move);
 
 #endif // RULEBOOK_H

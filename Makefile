@@ -5,6 +5,9 @@ ALL_OBJS = position.o rulebook.o ui.o
 
 all: checkers
 
+run: checkers
+	./checkers
+
 # position.o: position.cpp rulebook.cpp position.h rulebook.h
 # 	$(CXX) $(CXXFLAGS) -c position.cpp rulebook.cpp
 
@@ -21,4 +24,4 @@ clean:
 	rm -f position checkers *.o
 	rm -rf docs
 
-.PHONY: all clean doc
+.PHONY: all clean doc run
