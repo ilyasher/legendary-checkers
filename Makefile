@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS= -std=c++17 #-Wall -Werror
 POSITION_OBJS = position.o
-ALL_OBJS = position.o rulebook.o
+ALL_OBJS = position.o rulebook.o ui.o
 
 all: checkers
 

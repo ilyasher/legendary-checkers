@@ -1,9 +1,5 @@
 #include "position.h"
 
-int main() {
-    return 0;
-}
-
 Position::Position() {
     bit_boards = BitBoards{0, 0, 0, 0};
 
@@ -34,16 +30,16 @@ inline bit_board_t Position::black_kings() const {
 }
 
 inline bit_board_t Position::white_pieces() const {
-    return bit_boards.white_men & bit_boards.white_kings;
+    return bit_boards.white_men | bit_boards.white_kings;
 }
 
 inline bit_board_t Position::black_pieces() const {
-    return bit_boards.black_men & bit_boards.black_kings;
+    return bit_boards.black_men | bit_boards.black_kings;
 }
 
 inline bit_board_t Position::pieces() const {
-    return bit_boards.white_men & bit_boards.white_kings &
-           bit_boards.black_men & bit_boards.black_kings;
+    return bit_boards.white_men | bit_boards.white_kings |
+           bit_boards.black_men | bit_boards.black_kings;
 }
 
 inline bit_board_t Position::empties() const {

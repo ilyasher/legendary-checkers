@@ -45,7 +45,7 @@ std::vector<square_t> get_squares(bit_board_t board);
 
 /** Returns a bit_board_t with only one square on. */
 inline bit_board_t square_to_bitboard(square_t square) {
-    return 1 << square;
+    return 1L << square;
 }
 
 /** Returns whether a given square on a given bitboard is on. */
