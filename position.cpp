@@ -136,6 +136,7 @@ Position Position::play_move(const Move &move) const {
         return new_position;
     }
 
+    // maybe a way to make this better? like with get_all_legal_moves
     if (turn == white) {
         if (square_is_on(bit_boards.white_men, move.from)) {
             add_square(new_position.bit_boards.white_men, move.from);
@@ -164,6 +165,8 @@ Position Position::play_move(const Move &move) const {
             remove_square(new_position.bit_boards.white_kings, move.over);
         }
     }
+
+    // TODO: add piece promotion
 
     return new_position;
 }

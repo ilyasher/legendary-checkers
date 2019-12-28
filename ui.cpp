@@ -1,6 +1,13 @@
 #include <iostream>
 #include "position.h"
 
+Move prompt_move(Position & pos) {
+    std::vector<Move> all_moves = pos.get_all_legal_moves();
+    for (Move move : all_moves) {
+        std::cout << move.from << ", " << move.to << "\n";
+    }
+}
+
 int main() {
     std::cout << "Starting a game of checkers.\n";
 
@@ -29,6 +36,7 @@ int main() {
             std::cout << "*---*---*---*---*---*---*---*---*\n";
         }
     }
+    prompt_move(game);
 
     std::cout << "Thank you for playing checkers!\n";
     return 0;
