@@ -101,8 +101,10 @@ public:
         bool must_capture
     ) const;
 
-    /** Play a given move on this position, modifying it. */
-    // void play_move(Move move);
+    // /** Play a given move on this position, modifying it. */
+    Position play_move(const Move &move) const;
+
+
 
 };
 

@@ -18,6 +18,9 @@ struct Move {
     square_t from; /**< The square the piece is moving from. */
     square_t to;   /**< The square the piece is moving to. */
     square_t over; /**< If Move is a capture, the square it jumps. Else, NONE. */
+
+    /** Returns whether the move is a capture. */
+    bool is_capture() const { return over != NONE; }
 };
 
 const Move MOVE_PASS = Move{true, NONE, NONE, NONE};

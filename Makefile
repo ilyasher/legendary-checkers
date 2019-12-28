@@ -5,8 +5,8 @@ ALL_OBJS = position.o rulebook.o
 
 all: checkers
 
-position.o: position.cpp rulebook.cpp position.h rulebook.h
-	$(CXX) $(CXXFLAGS) -c position.cpp rulebook.cpp
+# position.o: position.cpp rulebook.cpp position.h rulebook.h
+# 	$(CXX) $(CXXFLAGS) -c position.cpp rulebook.cpp
 
 checkers: $(ALL_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@

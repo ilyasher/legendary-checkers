@@ -127,3 +127,47 @@ void Position::get_piece_moves(
         }
     }
 }
+
+Position Position::play_move(const Move &move) const {
+    Position new_position = *this;
+
+    if (!move.is_capture()) {
+        new_position.turn = switch_turn(turn);
+        new_position.n_moves ++;
+    }
+
+    if (move.is_pass) {
+        return new_position;
+    }
+
+    if (turn == white) {
+        if (square_is_on(bit_boards.white_men, move.from)) {
+            add_square(new_position.bit_boards.white_men, move.from);
+            remove_square(new_position.bit_boards.white_men, move.to);
+        }
+        else {
+            add_square(new_position.bit_boards.white_kings, move.from);
+            remove_square(new_position.bit_boards.white_kings, move.to);
+        }
+        if (move.is_capture()) {
+            remove_square(new_position.bit_boards.black_men, move.over);
+            remove_square(new_position.bit_boards.black_kings, move.over);
+        }
+    }
+    else {
+        if (square_is_on(bit_boards.black_men, move.from)) {
+            add_square(new_position.bit_boards.black_men, move.from);
+            remove_square(new_position.bit_boards.black_men, move.to);
+        }
+        else {
+            add_square(new_position.bit_boards.black_kings, move.from);
+            remove_square(new_position.bit_boards.black_kings, move.to);
+        }
+        if (move.is_capture()) {
+            remove_square(new_position.bit_boards.white_men, move.over);
+            remove_square(new_position.bit_boards.white_kings, move.over);
+        }
+    }
+
+    return new_position;
+}

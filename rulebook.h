@@ -53,4 +53,22 @@ inline bool square_is_on(bit_board_t board, square_t square) {
     return board & square_to_bitboard(square);
 }
 
+/** Returns the color_t opposite of the given color_t `turn`. */
+inline color_t switch_turn(color_t turn) {
+    if (turn == white) {
+        return black;
+    }
+    return white;
+}
+
+/** Turns on a square on a given bit_board_t, passed in by reference. */
+inline void add_square(bit_board_t &board, square_t square) {
+    board |= square_to_bitboard(square);
+}
+
+/** Turns off a square on a given bit_board_t, passed in by reference. */
+inline void remove_square(bit_board_t &board, square_t square) {
+    board &= ~square_to_bitboard(square);
+}
+
 #endif // RULEBOOK_H
