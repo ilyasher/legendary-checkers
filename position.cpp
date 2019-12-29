@@ -88,6 +88,11 @@ std::vector<Move> Position::get_all_legal_moves() const {
         get_piece_moves(legal_moves, black_kings(), white_pieces(), FORWARD_MOVES, false);
         get_piece_moves(legal_moves, black_kings(), white_pieces(), BACKWARD_MOVES, false);
     }
+
+    if (legal_moves.empty()) {
+        legal_moves.push_back(MOVE_PASS);
+    }
+
     return legal_moves;
 }
 

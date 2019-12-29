@@ -5,17 +5,26 @@ Move prompt_move(Position & pos) {
 
     std::cout << "Move Choices:\n";
     std::vector<Move> all_moves = pos.get_all_legal_moves();
-    // TODO: What if you have no moves??
-    for (int i = 0; i < all_moves.size(); i ++) {
+    int num_moves = all_moves.size();
+
+    for (int i = 0; i < num_moves; i ++) {
         auto j = i + 1;
         std::cout << j / 10 << j % 10 << ": " << all_moves[i] << "\n";
     }
-    std::cout << "\nMove Index: ";
 
     int move_index;
-    std::cin >> move_index;
-    move_index--;
-    // TODO: Make sure input is valid
+    std::cout << "\nMove Index: ";
+    while (true) {
+        std::cin >> move_index;
+        move_index--;
+
+        if (0 <= move_index && move_index < num_moves) {
+            break;
+        }
+        std::cout << "Chosen move index out of range.\n"
+                  << "Please enter a valid move index: ";
+    }
+
     std::cout << "Chosen move index: " << move_index << "\n";
     std::cout << "Chosen move: " << all_moves[move_index] << "\n";
 
