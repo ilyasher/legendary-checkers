@@ -78,6 +78,7 @@ std::vector<Move> Position::get_all_legal_moves() const {
         return legal_moves;
     }
 
+    /* Add moves for every piece. */
     if (turn == white) {
         get_piece_moves(legal_moves, white_men(), black_pieces(), FORWARD_MOVES, false);
         get_piece_moves(legal_moves, white_kings(), black_pieces(), FORWARD_MOVES, false);
@@ -89,6 +90,7 @@ std::vector<Move> Position::get_all_legal_moves() const {
         get_piece_moves(legal_moves, black_kings(), white_pieces(), BACKWARD_MOVES, false);
     }
 
+    /* If you can't play any move, you can pass. */
     if (legal_moves.empty()) {
         legal_moves.push_back(MOVE_PASS);
     }
@@ -109,20 +111,26 @@ void Position::get_piece_moves(
         for (Move candidate_move : template_piece_moves) {
 
             candidate_move.to += square;
+
+            /* Pieces must move to an empty square. */
             if (!square_is_on(empties(), candidate_move.to)) {
                 continue;
             }
 
             if (candidate_move.over == NONE) {
+                /* Capture sequence must only contain captures. */
                 if (must_capture) {
                     continue;
                 }
             } else {
                 candidate_move.over += square;
+
+                /* Check that there is an enemy to capture. */
                 if (!square_is_on(enemy_board, candidate_move.over)) {
                     continue;
                 }
             }
+
             candidate_move.from += square;
 
             legal_moves.push_back(candidate_move);
@@ -133,6 +141,7 @@ void Position::get_piece_moves(
 Position Position::play_move(const Move &move) const {
     Position new_position = *this;
 
+    /* Unless the move is part of a capture sequence, switch whose turn it is. */
     if (!move.is_capture()) {
         new_position.turn = switch_turn(turn);
         new_position.n_moves ++;
@@ -173,9 +182,19 @@ Position Position::play_move(const Move &move) const {
         }
     }
 
-    new_position.capturer = move.over;
+    if (move.is_capture()) {
+        new_position.capturer = move.to;
+    }
 
-    // TODO: add piece promotion
+    /* If on the last row, promote to a king. */
+    if (move.to / ROW == 7 && square_is_on(bit_boards.white_men, move.from)) {
+        remove_square(new_position.bit_boards.white_men, move.to);
+        add_square(new_position.bit_boards.white_kings, move.to);
+    }
+    else if (move.to / ROW == 0 && square_is_on(bit_boards.black_men, move.from)) {
+        remove_square(new_position.bit_boards.black_men, move.to);
+        add_square(new_position.bit_boards.black_kings, move.to);
+    }
 
     return new_position;
 }

@@ -14,6 +14,10 @@ const square_t ROW = 8;
 /** The number of index shifts skipping a column is equivalent to. */
 const square_t COL = 1;
 
+/**
+ * Bitboards representing which squares can and can't hold pieces.
+ * In checkers, only half of the squares can hold pieces.
+ */
 const bit_board_t LEGAL_SQUARES   = 0xaa55aa55aa55aa55;
 const bit_board_t ILLEGAL_SQUARES = ~LEGAL_SQUARES;
 
@@ -75,8 +79,19 @@ inline void remove_square(bit_board_t &board, square_t square) {
     board &= ~square_to_bitboard(square);
 }
 
+/**
+ * Implements stream-output for the square type.
+ * Prints the square in the format XY,
+ * where X is a letter A-H representing the row,
+ * and Y is a number 1-8 representing the column the square is in.
+ */
 std::ostream & operator<<(std::ostream &os, square_t square);
 
+/**
+ * Implements stream-output for the Move type.
+ * Prints out the squares that the piece moves from and to.
+ * Indicates whether it is a normal move, capture, or pass.
+ */
 std::ostream & operator<<(std::ostream &os, const Move &move);
 
 #endif // RULEBOOK_H

@@ -1,6 +1,10 @@
 #include <iostream>
 #include "position.h"
 
+/**
+ * Print out the list of possible moves to the user.
+ * Returns the function the user chooses.
+ */
 Move prompt_move(Position & pos) {
 
     std::cout << "Move Choices:\n";
@@ -25,7 +29,6 @@ Move prompt_move(Position & pos) {
                   << "Please enter a valid move index: ";
     }
 
-    std::cout << "Chosen move index: " << move_index << "\n";
     std::cout << "Chosen move: " << all_moves[move_index] << "\n";
 
     return all_moves[move_index];

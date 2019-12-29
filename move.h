@@ -23,6 +23,10 @@ struct Move {
     bool is_capture() const { return over != NONE; }
 };
 
+/**
+ * The pass move.
+ * Played at the end of a capture sequence, or when there are no legal moves.
+ */
 const Move MOVE_PASS = Move{true, NONE, NONE, NONE};
 
 #endif // MOVE_H

@@ -101,11 +101,18 @@ public:
         bool must_capture
     ) const;
 
-    // /** Play a given move on this position, modifying it. */
+    /**
+     * Returns a new Position which is the result of playing the given
+     * Move on this Position.
+     */
     Position play_move(const Move &move) const;
 
 };
 
+/**
+ * Implements stream-output for the Position type.
+ * Prints the position on a checkerboard with labelled rows and columns.
+ */
 std::ostream & operator<<(std::ostream &os, const Position &pos);
 
 #endif // POSITION_H

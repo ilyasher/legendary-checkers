@@ -8,9 +8,6 @@ all: checkers
 run: checkers
 	./checkers
 
-# position.o: position.cpp rulebook.cpp position.h rulebook.h
-# 	$(CXX) $(CXXFLAGS) -c position.cpp rulebook.cpp
-
 checkers: $(ALL_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
