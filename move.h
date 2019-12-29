@@ -7,6 +7,7 @@
  * A type that represents a position of a square on a board.
  * The values should be either between 0 and 63, or NONE.
  */
+// typedef uint8_t square_t;
 using square_t = int8_t;
 
 /** A NULL value for a square_t, i.e. a square_t that is not on the board */

@@ -56,9 +56,14 @@ inline bit_board_t square_to_bitboard(square_t square) {
     return 1L << square;
 }
 
+/** Returns whether the square is in the correct bounds. */
+inline bool is_valid_square(square_t square) {
+    return square >= 0 && square < NUM_SQUARES;
+}
+
 /** Returns whether a given square on a given bitboard is on. */
 inline bool square_is_on(bit_board_t board, square_t square) {
-    return board & square_to_bitboard(square);
+    return is_valid_square(square) && board & square_to_bitboard(square);
 }
 
 /** Returns the color_t opposite of the given color_t `turn`. */

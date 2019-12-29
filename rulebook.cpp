@@ -16,6 +16,7 @@ std::ostream & operator<<(std::ostream &os, square_t square) {
     char letter = square % 8 + 'a';
     int num = square / 8 + 1;
     os << letter << num;
+    // os << (uint16_t) square;
     return os;
 }
 
