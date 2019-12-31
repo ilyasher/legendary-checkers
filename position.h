@@ -107,6 +107,9 @@ public:
      */
     Position play_move(const Move &move) const;
 
+    bool operator==(const Position &pos) const;
+    bool operator!=(const Position &pos) const;
+
 };
 
 /**

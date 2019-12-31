@@ -1,5 +1,6 @@
 #include <iostream>
 #include "position.h"
+#include "legend_AI.h"
 
 /**
  * Print out the list of possible moves to the user.
@@ -39,10 +40,13 @@ int main() {
 
     Position game;
 
+    LegendAI AI;
+
     while (true) {
         std::cout << game;
         std::cout << "\n";
         game = game.play_move(prompt_move(game));
+        std::cout << "Computer move: " << AI.best_move(game) << "\n";
     }
 
     std::cout << "Thank you for playing checkers!\n";

@@ -199,6 +199,23 @@ Position Position::play_move(const Move &move) const {
     return new_position;
 }
 
+bool Position::operator==(const Position &pos) const {
+    bool equal = true;
+    equal &= bit_boards.white_men == pos.bit_boards.white_men;
+    equal &= bit_boards.white_kings == pos.bit_boards.white_kings;
+    equal &= bit_boards.black_men == pos.bit_boards.black_kings;
+    equal &= bit_boards.black_kings == pos.bit_boards.black_kings;
+    equal &= turn == pos.turn;
+    equal &= n_moves == pos.n_moves;
+    equal &= capturer == pos.capturer;
+    return equal;
+}
+
+bool Position::operator!=(const Position &pos) const {
+    return !(*this == pos);
+}
+
+
 std::ostream & operator<<(std::ostream &os, const Position &pos) {
 
     square_t square = 0;
