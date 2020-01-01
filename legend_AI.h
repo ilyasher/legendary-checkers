@@ -4,39 +4,41 @@
 #include <random>
 #include <cmath>
 #include <iostream>
+#include <ctime>
 #include "position.h"
 
 using score_t = int32_t;
+
+// TODO: Use INT_MAX and INT_MIN
+const score_t WHITE_WIN = 100000;
+const score_t BLACK_WIN = -100000;
 
 class LegendAI {
 
     // ideas: cache game states
 
-    struct PositionTreeNode {
-        PositionTreeNode *parent;
+    struct MCTS_Node {
+        MCTS_Node *parent;
         Position *position;
         int num_moves;
 
         int num_visits;
         int total_score;
 
-        std::vector<PositionTreeNode *> children;
+        std::vector<MCTS_Node *> children;
 
-        PositionTreeNode(Position *pos);
-        PositionTreeNode(Position *pos, PositionTreeNode *parent);
-        PositionTreeNode *best_child(double Cp);
+        MCTS_Node(Position *pos, MCTS_Node *parent = nullptr);
+        MCTS_Node *best_child(double Cp);
 
         inline bool is_leaf() { return children.empty(); }
         inline bool is_fully_expanded() { return children.size() == num_moves; }
     };
 
-    // PositionTreeNode game_tree;
+    MCTS_Node *select_node(MCTS_Node *node);
 
-    PositionTreeNode *select_node(PositionTreeNode *node);
+    MCTS_Node *expand_node(MCTS_Node *node);
 
-    PositionTreeNode *expand_node(PositionTreeNode *node);
-
-    void back_propogate(PositionTreeNode *node, score_t score);
+    void back_propogate(MCTS_Node *node, score_t score);
 
 public:
 

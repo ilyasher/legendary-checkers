@@ -1,18 +1,12 @@
 #include "legend_AI.h"
 
-LegendAI::PositionTreeNode::PositionTreeNode(Position *pos) {
-    // PositionTreeNode(pos, nullptr);
-    this->position = pos;
-    this->parent = nullptr;
-    this->num_moves = pos->get_all_legal_moves().size();
-    this->num_visits = 0;
-    this->total_score = 0;
-}
-
-LegendAI::PositionTreeNode::PositionTreeNode(Position *pos, PositionTreeNode *parent) {
+LegendAI::MCTS_Node::MCTS_Node(Position *pos, MCTS_Node *parent) {
     this->position = pos;
     this->parent = parent;
+
+    // TODO: this gets calculated twice, fix to make faster!
     this->num_moves = pos->get_all_legal_moves().size();
+
     this->num_visits = 0;
     this->total_score = 0;
 }
@@ -20,29 +14,40 @@ LegendAI::PositionTreeNode::PositionTreeNode(Position *pos, PositionTreeNode *pa
 score_t LegendAI::eval(Position *pos) {
 
     // simple first attempt
-    score_t score = 0;
+    score_t white_score = 0;
+    score_t black_score = 0;
 
     for (square_t square = 0; square < NUM_SQUARES; square ++) {
         if (square_is_on(pos->white_men(), square)) {
-            score += 100;
+            white_score += 100;
         }
         else if (square_is_on(pos->white_kings(), square)) {
-            score += 300;
+            white_score += 300;
         }
         else if (square_is_on(pos->black_men(), square)) {
-            score += -100;
+            black_score += 100;
         }
         else if (square_is_on(pos->black_kings(), square)) {
-            score += -300;
+            black_score += 300;
         }
     }
 
-    return score;
+    if (black_score == 0) {
+        return WHITE_WIN;
+    }
+    if (white_score == 0) {
+        return BLACK_WIN;
+    }
+
+    return white_score - black_score;
 }
 
-LegendAI::PositionTreeNode *LegendAI::expand_node(PositionTreeNode *node) {
+LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 
-    // THIS IS SOMETHING THAT SHOULD BE CACHED !!!
+
+    // std::cout << "expanding node\n";
+
+    // THIS IS SOMETHING THAT COULD BE CACHED !!!
     std::vector<Move> all_moves = node->position->get_all_legal_moves();
 
     // TODO: Make this random.
@@ -50,18 +55,18 @@ LegendAI::PositionTreeNode *LegendAI::expand_node(PositionTreeNode *node) {
 
     // TODO: free these later
     Position *new_position = new Position(node->position->play_move(move));
-    PositionTreeNode *new_node = new PositionTreeNode(new_position, node);
+    MCTS_Node *new_node = new MCTS_Node(new_position, node);
 
     node->children.push_back(new_node);
 
     return new_node;
 }
 
-LegendAI::PositionTreeNode *LegendAI::PositionTreeNode::best_child(double Cp) {
+LegendAI::MCTS_Node *LegendAI::MCTS_Node::best_child(double Cp) {
     double bound = 0;
-    PositionTreeNode *best_node;
-    for (PositionTreeNode *child : children) {
-        std::cout << "this happened once\n";
+    MCTS_Node *best_node;
+    for (MCTS_Node *child : children) {
+        // std::cout << "this happened once\n";
         double child_bound = (double) (child->total_score) / child->num_visits;
         // TODO: MAKE FASTER WITH TAYLOR, OR SOMEHOW:
         // TODO: store value of log(N)
@@ -70,30 +75,34 @@ LegendAI::PositionTreeNode *LegendAI::PositionTreeNode::best_child(double Cp) {
             bound = child_bound;
             best_node = child;
         }
-        std::cout << child << ", " << child_bound << "\n";
+        // std::cout << child << ", " << child_bound << "\n";
     }
-    std::cout << "Best child of " << this << " is " << best_node << "\n";
+    // std::cout << "Best child of " << this << " is " << best_node
+              // << " with score " << bound << "\n";
     return best_node;
 }
 
-LegendAI::PositionTreeNode *LegendAI::select_node(PositionTreeNode *node) {
-    do {
+LegendAI::MCTS_Node *LegendAI::select_node(MCTS_Node *node) {
+
+    // TODO: replace with while(game is not over)
+    while (true) {
         if (!node->is_fully_expanded()) {
             return expand_node(node);
         }
-        std::cout << "about to try the best child\n";
+        // std::cout << node->children.size() << " " << node->num_moves << "\n";
+        // std::cout << "about to try the best child\n";
         node = node->best_child(1.4142);
-    } while (!node->is_leaf());
+    }
     return node;
 }
 
-void LegendAI::back_propogate(LegendAI::PositionTreeNode *node, score_t score) {
+void LegendAI::back_propogate(LegendAI::MCTS_Node *node, score_t score) {
     while (node) {
         node->num_visits ++;
         node->total_score += score;
 
         // TODO: CHECK THIS.
-        score *= -1;
+        // score *= -1;
 
         node = node->parent;
     }
@@ -101,26 +110,33 @@ void LegendAI::back_propogate(LegendAI::PositionTreeNode *node, score_t score) {
 
 Move LegendAI::best_move(Position &pos) {
 
-    PositionTreeNode game_tree = PositionTreeNode(&pos);
+    MCTS_Node game_tree = MCTS_Node(&pos);
 
-    // TODO: replace with `for 1 second`
-    for (int i = 0; i < 10000; i ++) {
-        PositionTreeNode *node = select_node(&game_tree);
-        std::cout << node->position << "\n";
+    auto start_time = std::clock();
+
+    int num_runs = 0;
+
+    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.01) {
+    // for (int i = 0; i < 4000; i ++) {
+        MCTS_Node *node = select_node(&game_tree);
+        // std::cout << node->position << "\n";
         score_t score = eval(node->position);
         back_propogate(node, score);
+        num_runs ++;
     }
 
-    std::cout << game_tree.children.size() << "\n";
-    std::cout << game_tree.num_moves << "\n";
-    for (PositionTreeNode *child : game_tree.children) {
-        std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
-                  << child->total_score << "\n";
+    std::cout << "Performed " << num_runs << " runs\n";
+
+    // std::cout << game_tree.children.size() << "\n";
+    // std::cout << game_tree.num_moves << "\n";
+    for (MCTS_Node *child : game_tree.children) {
+        // std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
+                  // << child->total_score << "\n";
     }
 
     Position best_position = *(game_tree.best_child(0)->position);
 
-    std::cout << "Made it here ??\n";
+    // std::cout << "Made it here ??\n";
 
 
     for (Move move : pos.get_all_legal_moves()) {
