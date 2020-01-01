@@ -61,24 +61,44 @@ LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
     return new_node;
 }
 
+bool is_preferred(double a, double b, color_t turn) {
+    // based on whose turn it is, returns whether a is preferred to b
+
+    if (turn == white) {
+        return a > b;
+    }
+    return b > a;
+}
+
 LegendAI::MCTS_Node *LegendAI::MCTS_Node::best_child(double Cp) {
 
-    double bound = MIN_DOUBLE;
-    MCTS_Node *best_node;
+    double bound;
+    MCTS_Node *best_node = nullptr;
+
     for (MCTS_Node *child : children) {
         double child_bound = (double) (child->total_score) / child->num_visits;
+
         // TODO: MAKE FASTER WITH TAYLOR, OR SOMEHOW:
         // TODO: store value of log(N)
-        child_bound += Cp * std::sqrt(2 * std::log(num_visits) / child->num_visits);
+        // TODO: make not ugly
+        if (this->position->get_turn() == white) {
+            child_bound += Cp * std::sqrt(2 * std::log(num_visits) / child->num_visits);
+        }
+        else {
+            child_bound -= Cp * std::sqrt(2 * std::log(num_visits) / child->num_visits);
+        }
 
-        if (child_bound > bound) {
+        // TODO: fix here
+        if (!best_node || is_preferred(child_bound, bound, this->position->get_turn())) {
             bound = child_bound;
             best_node = child;
         }
         if (Cp == 0)
             std::cout << child << ", " << child->num_visits
                       << ", " << child->total_score << ", " << child_bound << "\n";
+
     }
+
     if (Cp == 0) {
         std::cout << "Best child is " << best_node
                   << " with score " << bound << "\n";
@@ -94,7 +114,7 @@ LegendAI::MCTS_Node *LegendAI::select_node(MCTS_Node *node) {
         if (!node->is_fully_expanded()) {
             return expand_node(node);
         }
-        node = node->best_child(1.4142);
+        node = node->best_child(420.69);
     }
 
     return node;
@@ -121,7 +141,7 @@ Move LegendAI::best_move(Position &pos) {
 
     int num_runs = 0;
 
-    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.005) {
+    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.2) {
     // for (int i = 0; i < 4000; i ++) {
         MCTS_Node *node = select_node(&game_tree);
         score_t score = eval(node->position);

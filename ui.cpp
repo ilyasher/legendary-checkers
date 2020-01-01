@@ -45,8 +45,10 @@ int main() {
     while (true) {
         std::cout << game;
         std::cout << "\n";
-        game = game.play_move(prompt_move(game));
-        std::cout << "Computer move: " << AI.best_move(game) << "\n";
+        // game = game.play_move(prompt_move(game));
+        // std::cout << "Computer move: " << AI.best_move(game) << "\n";
+
+        game = game.play_move(AI.best_move(game));
     }
 
     std::cout << "Thank you for playing checkers!\n";

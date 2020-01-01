@@ -72,6 +72,9 @@ public:
     /** Return all the empty squares. */
     bit_board_t empties() const;
 
+    /** Returns whose turn it is. */
+    color_t get_turn() const { return turn; }
+
     /**
      * Return a vector of all Moves that can be played by whoever's turn it
      * is in this Position.
