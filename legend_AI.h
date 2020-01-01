@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <ctime>
+#include <limits>
 #include "position.h"
 
 using score_t = int32_t;
@@ -12,6 +13,8 @@ using score_t = int32_t;
 // TODO: Use INT_MAX and INT_MIN
 const score_t WHITE_WIN = 100000;
 const score_t BLACK_WIN = -100000;
+
+const double MIN_DOUBLE = std::numeric_limits<double>::lowest();
 
 class LegendAI {
 
@@ -23,7 +26,7 @@ class LegendAI {
         int num_moves;
 
         int num_visits;
-        int total_score;
+        int64_t total_score;
 
         std::vector<MCTS_Node *> children;
 

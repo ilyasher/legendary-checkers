@@ -203,7 +203,7 @@ bool Position::operator==(const Position &pos) const {
     bool equal = true;
     equal &= bit_boards.white_men == pos.bit_boards.white_men;
     equal &= bit_boards.white_kings == pos.bit_boards.white_kings;
-    equal &= bit_boards.black_men == pos.bit_boards.black_kings;
+    equal &= bit_boards.black_men == pos.bit_boards.black_men;
     equal &= bit_boards.black_kings == pos.bit_boards.black_kings;
     equal &= turn == pos.turn;
     equal &= n_moves == pos.n_moves;

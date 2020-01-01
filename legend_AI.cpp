@@ -44,9 +44,6 @@ score_t LegendAI::eval(Position *pos) {
 
 LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 
-
-    // std::cout << "expanding node\n";
-
     // THIS IS SOMETHING THAT COULD BE CACHED !!!
     std::vector<Move> all_moves = node->position->get_all_legal_moves();
 
@@ -55,7 +52,9 @@ LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 
     // TODO: free these later
     Position *new_position = new Position(node->position->play_move(move));
+    if (!new_position) std::cout << "FATAL ERROR!\n";
     MCTS_Node *new_node = new MCTS_Node(new_position, node);
+    if (!new_node) std::cout << "FATAL ERROR!\n";
 
     node->children.push_back(new_node);
 
@@ -63,22 +62,28 @@ LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 }
 
 LegendAI::MCTS_Node *LegendAI::MCTS_Node::best_child(double Cp) {
-    double bound = 0;
+
+    double bound = MIN_DOUBLE;
     MCTS_Node *best_node;
     for (MCTS_Node *child : children) {
-        // std::cout << "this happened once\n";
         double child_bound = (double) (child->total_score) / child->num_visits;
         // TODO: MAKE FASTER WITH TAYLOR, OR SOMEHOW:
         // TODO: store value of log(N)
         child_bound += Cp * std::sqrt(2 * std::log(num_visits) / child->num_visits);
+
         if (child_bound > bound) {
             bound = child_bound;
             best_node = child;
         }
-        // std::cout << child << ", " << child_bound << "\n";
+        if (Cp == 0)
+            std::cout << child << ", " << child->num_visits
+                      << ", " << child->total_score << ", " << child_bound << "\n";
     }
-    // std::cout << "Best child of " << this << " is " << best_node
-              // << " with score " << bound << "\n";
+    if (Cp == 0) {
+        std::cout << "Best child is " << best_node
+                  << " with score " << bound << "\n";
+    }
+
     return best_node;
 }
 
@@ -89,14 +94,14 @@ LegendAI::MCTS_Node *LegendAI::select_node(MCTS_Node *node) {
         if (!node->is_fully_expanded()) {
             return expand_node(node);
         }
-        // std::cout << node->children.size() << " " << node->num_moves << "\n";
-        // std::cout << "about to try the best child\n";
         node = node->best_child(1.4142);
     }
+
     return node;
 }
 
 void LegendAI::back_propogate(LegendAI::MCTS_Node *node, score_t score) {
+
     while (node) {
         node->num_visits ++;
         node->total_score += score;
@@ -116,10 +121,9 @@ Move LegendAI::best_move(Position &pos) {
 
     int num_runs = 0;
 
-    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.01) {
+    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.005) {
     // for (int i = 0; i < 4000; i ++) {
         MCTS_Node *node = select_node(&game_tree);
-        // std::cout << node->position << "\n";
         score_t score = eval(node->position);
         back_propogate(node, score);
         num_runs ++;
@@ -127,25 +131,20 @@ Move LegendAI::best_move(Position &pos) {
 
     std::cout << "Performed " << num_runs << " runs\n";
 
-    // std::cout << game_tree.children.size() << "\n";
-    // std::cout << game_tree.num_moves << "\n";
     for (MCTS_Node *child : game_tree.children) {
-        // std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
-                  // << child->total_score << "\n";
+        std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
+                  << child->total_score << "\n";
     }
 
     Position best_position = *(game_tree.best_child(0)->position);
 
-    // std::cout << "Made it here ??\n";
-
-
     for (Move move : pos.get_all_legal_moves()) {
         // TODO: save best child in variable
-        // std::cout << "Considering move " << move << "\n";
         if (pos.play_move(move) == best_position) {
             return move;
         }
     }
+    std::cout << "error\n";
 
     // TODO: throw error?
 }
