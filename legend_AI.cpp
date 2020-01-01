@@ -64,7 +64,7 @@ LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 bool is_preferred(double a, double b, color_t turn) {
     // based on whose turn it is, returns whether a is preferred to b
 
-    if (turn == white) {
+    if (turn == WHITE) {
         return a > b;
     }
     return b > a;
@@ -81,7 +81,7 @@ LegendAI::MCTS_Node *LegendAI::MCTS_Node::best_child(double Cp) {
         // TODO: MAKE FASTER WITH TAYLOR, OR SOMEHOW:
         // TODO: store value of log(N)
         // TODO: make not ugly
-        if (this->position->get_turn() == white) {
+        if (this->position->get_turn() == WHITE) {
             child_bound += Cp * std::sqrt(2 * std::log(num_visits) / child->num_visits);
         }
         else {

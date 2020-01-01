@@ -8,7 +8,7 @@ Position::Position() {
     bit_boards.black_men = 0xaa55aaL << (5 * 8); /* L specifies 64-bit int.  */
     bit_boards.white_men = 0x55aa55; /* 0xaa = 0b10101010, 0x55 = 0b01010101 */
 
-    turn = black;
+    turn = BLACK;
     n_moves = 0;
     capturer = NONE;
 }
@@ -58,7 +58,7 @@ std::vector<Move> Position::get_all_legal_moves() const {
         /** A board that is just the capturing piece. */
         bit_board_t capturer_board = square_to_bitboard(capturer);
 
-        if (turn == white) {
+        if (turn == WHITE) {
             get_piece_moves(legal_moves, capturer_board, black_pieces(), FORWARD_MOVES, true);
 
             /** If the capturer is a king. */
@@ -79,7 +79,7 @@ std::vector<Move> Position::get_all_legal_moves() const {
     }
 
     /* Add moves for every piece. */
-    if (turn == white) {
+    if (turn == WHITE) {
         get_piece_moves(legal_moves, white_men(), black_pieces(), FORWARD_MOVES, false);
         get_piece_moves(legal_moves, white_kings(), black_pieces(), FORWARD_MOVES, false);
         get_piece_moves(legal_moves, white_kings(), black_pieces(), BACKWARD_MOVES, false);
@@ -153,7 +153,7 @@ Position Position::play_move(const Move &move) const {
     }
 
     // maybe a way to make this better? like with get_all_legal_moves
-    if (turn == white) {
+    if (turn == WHITE) {
         if (square_is_on(bit_boards.white_men, move.from)) {
             add_square(new_position.bit_boards.white_men, move.to);
             remove_square(new_position.bit_boards.white_men, move.from);

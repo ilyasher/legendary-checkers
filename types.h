@@ -5,7 +5,7 @@
 #include <cstdint>
 
 /** A type to distinguish the two players. */
-enum color_t { white, black };
+enum color_t { WHITE, BLACK };
 
 /**
  * A type that stores 64 bits - one for each square on the board.

@@ -68,10 +68,10 @@ inline bool square_is_on(bit_board_t board, square_t square) {
 
 /** Returns the color_t opposite of the given color_t `turn`. */
 inline color_t switch_turn(color_t turn) {
-    if (turn == white) {
-        return black;
+    if (turn == WHITE) {
+        return BLACK;
     }
-    return white;
+    return WHITE;
 }
 
 /** Turns on a square on a given bit_board_t, passed in by reference. */
