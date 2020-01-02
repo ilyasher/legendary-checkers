@@ -5,10 +5,15 @@ LegendAI::MCTS_Node::MCTS_Node(Position *pos, MCTS_Node *parent) {
     this->parent = parent;
 
     // TODO: this gets calculated twice, fix to make faster!
-    this->num_moves = pos->get_all_legal_moves().size();
+    this->moves = pos->get_all_legal_moves();
+    this->num_moves = moves.size();
 
     this->num_visits = 0;
     this->total_score = 0;
+}
+
+LegendAI::LegendAI() {
+    game_tree = nullptr;
 }
 
 score_t LegendAI::eval(Position *pos) {
@@ -45,12 +50,11 @@ score_t LegendAI::eval(Position *pos) {
 LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 
     // THIS IS SOMETHING THAT COULD BE CACHED !!!
-    std::vector<Move> all_moves = node->position->get_all_legal_moves();
+    std::vector<Move> all_moves = node->moves;
 
     // TODO: Make this random.
     Move move = all_moves[node->children.size()];
 
-    // TODO: free these later
     Position *new_position = new Position(node->position->play_move(move));
     if (!new_position) std::cout << "FATAL ERROR!\n";
     MCTS_Node *new_node = new MCTS_Node(new_position, node);
@@ -93,10 +97,6 @@ LegendAI::MCTS_Node *LegendAI::MCTS_Node::best_child(double Cp) {
             bound = child_bound;
             best_node = child;
         }
-        if (Cp == 0)
-            std::cout << child << ", " << child->num_visits
-                      << ", " << child->total_score << ", " << child_bound << "\n";
-
     }
 
     if (Cp == 0) {
@@ -125,25 +125,53 @@ void LegendAI::back_propogate(LegendAI::MCTS_Node *node, score_t score) {
     while (node) {
         node->num_visits ++;
         node->total_score += score;
-
-        // TODO: CHECK THIS.
-        // score *= -1;
-
         node = node->parent;
     }
 }
 
-Move LegendAI::best_move(Position &pos) {
+void LegendAI::delete_children(MCTS_Node *node) {
+    for (auto child : node->children) {
+        delete_children(child);
+    }
+    delete node->position;
+    delete node;
+}
 
-    MCTS_Node game_tree = MCTS_Node(&pos);
+LegendAI::MCTS_Node *LegendAI::MCTS_Node::find_explored_branch(Position *pos) {
+    if (*this->position == *pos) {
+        std::cout << "babus\n";
+        this->parent = nullptr;
+        return this;
+    }
+    MCTS_Node *return_value = nullptr;
+    for (auto child : this->children) {
+        MCTS_Node *node = child->find_explored_branch(pos);
+        if (node) {
+            return_value = node;
+        }
+    }
+    delete this->position;
+    delete this;
+    return return_value;
+}
+
+Move LegendAI::best_move(Position &pos, double time) {
+
+    Position *pos_copy = new Position(pos);
+    if (!game_tree) {
+        game_tree = new MCTS_Node(pos_copy);
+    }
+    else {
+        game_tree = game_tree->find_explored_branch(pos_copy);
+    }
 
     auto start_time = std::clock();
 
     int num_runs = 0;
 
-    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < 0.2) {
+    while (( std::clock() - start_time ) / (double) CLOCKS_PER_SEC < time) {
     // for (int i = 0; i < 4000; i ++) {
-        MCTS_Node *node = select_node(&game_tree);
+        MCTS_Node *node = select_node(game_tree);
         score_t score = eval(node->position);
         back_propogate(node, score);
         num_runs ++;
@@ -151,16 +179,22 @@ Move LegendAI::best_move(Position &pos) {
 
     std::cout << "Performed " << num_runs << " runs\n";
 
-    for (MCTS_Node *child : game_tree.children) {
+    for (MCTS_Node *child : game_tree->children) {
         std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
                   << child->total_score << "\n";
     }
 
-    Position best_position = *(game_tree.best_child(0)->position);
+    Position *best_position = game_tree->best_child(0)->position;
+
+    /* Free memory. */
+    game_tree = game_tree->find_explored_branch(best_position);
+    // std::cout << "e\n";
+    // delete_children(game_tree);
+    // std::cout << "f\n";
 
     for (Move move : pos.get_all_legal_moves()) {
         // TODO: save best child in variable
-        if (pos.play_move(move) == best_position) {
+        if (pos.play_move(move) == *best_position) {
             return move;
         }
     }

@@ -47,8 +47,13 @@ int main() {
         std::cout << "\n";
         // game = game.play_move(prompt_move(game));
         // std::cout << "Computer move: " << AI.best_move(game) << "\n";
-
-        game = game.play_move(AI.best_move(game));
+        if (game.get_turn() == WHITE) {
+            game = game.play_move(AI.best_move(game, 15));
+        }
+        else {
+            // game = game.play_move(prompt_move(game));
+            game = game.play_move(AI.best_move(game, 15));
+        }
     }
 
     std::cout << "Thank you for playing checkers!\n";
