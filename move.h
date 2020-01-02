@@ -5,13 +5,13 @@
 
 /**
  * A type that represents a position of a square on a board.
- * The values should be either between 0 and 63, or NONE.
+ * The values are 64 bit ints, with the bit at the index of the square
+ * turned on and the rest turned off. 
  */
-// typedef uint8_t square_t;
-using square_t = int8_t;
+using square_t = uint64_t;
 
 /** A NULL value for a square_t, i.e. a square_t that is not on the board */
-const square_t NONE = -1;
+const square_t NONE = 0;
 
 /** A struct that represents a single move in the game. */
 struct Move {

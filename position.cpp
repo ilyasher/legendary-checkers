@@ -51,27 +51,25 @@ inline bit_board_t Position::empties() const {
 std::vector<Move> Position::get_all_legal_moves() const {
 
     std::vector<Move> legal_moves;
+    legal_moves.reserve(20);
 
-    /* If the position is immediately follows a capture. */
+    /* If the position immediately follows a capture. */
     if (capturer != NONE) {
 
-        /** A board that is just the capturing piece. */
-        bit_board_t capturer_board = square_to_bitboard(capturer);
-
         if (turn == WHITE) {
-            get_piece_moves(legal_moves, capturer_board, black_pieces(), FORWARD_MOVES, true);
+            get_piece_moves(legal_moves, capturer, black_pieces(), FORWARD_MOVES, true);
 
             /** If the capturer is a king. */
             if (square_is_on(white_kings(), capturer)) {
-                get_piece_moves(legal_moves, capturer_board, black_pieces(), BACKWARD_MOVES, true);
+                get_piece_moves(legal_moves, capturer, black_pieces(), BACKWARD_MOVES, true);
             }
         }
         else {
-            get_piece_moves(legal_moves, capturer_board, white_pieces(), BACKWARD_MOVES, true);
+            get_piece_moves(legal_moves, capturer, white_pieces(), BACKWARD_MOVES, true);
 
             /** If the capturer is a king. */
             if (square_is_on(black_kings(), capturer)) {
-                get_piece_moves(legal_moves, capturer_board, white_pieces(), FORWARD_MOVES, true);
+                get_piece_moves(legal_moves, capturer, white_pieces(), FORWARD_MOVES, true);
             }
         }
         legal_moves.push_back(MOVE_PASS);
@@ -98,6 +96,13 @@ std::vector<Move> Position::get_all_legal_moves() const {
     return legal_moves;
 }
 
+square_t left_shift_square(square_t square, int8_t index) {
+    if (index >= 0) {
+        return square << index;
+    }
+    return square >> -index;
+}
+
 void Position::get_piece_moves(
     std::vector<Move> &legal_moves,
     bit_board_t piece_board,
@@ -106,11 +111,16 @@ void Position::get_piece_moves(
     bool must_capture
 ) const {
 
-    for (square_t square : get_squares(piece_board)) {
+    while (piece_board) {
+
+        /* Get next square on the bitboard. */
+        bit_board_t old_board = piece_board;
+        piece_board &= piece_board - 1;
+        square_t square = piece_board ^ old_board;
 
         for (Move candidate_move : template_piece_moves) {
 
-            candidate_move.to += square;
+            candidate_move.to = left_shift_square(square, candidate_move.to);
 
             /* Pieces must move to an empty square. */
             if (!square_is_on(empties(), candidate_move.to)) {
@@ -123,7 +133,7 @@ void Position::get_piece_moves(
                     continue;
                 }
             } else {
-                candidate_move.over += square;
+                candidate_move.over = left_shift_square(square, candidate_move.over);
 
                 /* Check that there is an enemy to capture. */
                 if (!square_is_on(enemy_board, candidate_move.over)) {
@@ -131,7 +141,7 @@ void Position::get_piece_moves(
                 }
             }
 
-            candidate_move.from += square;
+            candidate_move.from = left_shift_square(square, candidate_move.from);
 
             legal_moves.push_back(candidate_move);
         }
@@ -187,11 +197,11 @@ Position Position::play_move(const Move &move) const {
     }
 
     /* If on the last row, promote to a king. */
-    if (move.to / ROW == 7 && square_is_on(bit_boards.white_men, move.from)) {
+    if (move.to >> (7 * ROW) && square_is_on(bit_boards.white_men, move.from)) {
         remove_square(new_position.bit_boards.white_men, move.to);
         add_square(new_position.bit_boards.white_kings, move.to);
     }
-    else if (move.to / ROW == 0 && square_is_on(bit_boards.black_men, move.from)) {
+    else if (move.to << (7 * ROW) && square_is_on(bit_boards.black_men, move.from)) {
         remove_square(new_position.bit_boards.black_men, move.to);
         add_square(new_position.bit_boards.black_kings, move.to);
     }
@@ -218,7 +228,7 @@ bool Position::operator!=(const Position &pos) const {
 
 std::ostream & operator<<(std::ostream &os, const Position &pos) {
 
-    square_t square = 0;
+    square_t square = 1;
 
     for (int row = 0; row < 8; row ++) {
 
@@ -247,7 +257,7 @@ std::ostream & operator<<(std::ostream &os, const Position &pos) {
             os << to_print;
             os << " ";
 
-            square ++;
+            square <<= 1;
         }
         os << "|\n";
 

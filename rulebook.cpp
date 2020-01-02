@@ -1,27 +1,24 @@
 #include "rulebook.h"
 #include <iostream>
 
-std::vector<square_t> get_squares(bit_board_t board) {
-    std::vector<square_t> squares;
-    for (square_t square = 0; square < NUM_SQUARES; square ++) {
-        if (square_is_on(board, square)) {
-            squares.push_back(square);
+uint8_t square_to_index(square_t square) {
+    for (uint8_t i = 0; i < NUM_SQUARES; i ++) {
+        if (square == 1) {
+            return i;
         }
+        square >>= 1;
     }
-
-    return squares;
 }
 
-std::ostream & operator<<(std::ostream &os, square_t square) {
-    char letter = square % 8 + 'a';
-    int num = square / 8 + 1;
+std::ostream & print_square(std::ostream &os, square_t square) {
+    auto index = square_to_index(square);
+    char letter = index % 8 + 'a';
+    int num = index / 8 + 1;
     os << letter << num;
-    // os << (uint16_t) square;
     return os;
 }
 
 std::ostream & operator<<(std::ostream &os, const Move &move) {
-
     if (move.is_pass) {
         os << "Pass";
         return os;
@@ -32,6 +29,9 @@ std::ostream & operator<<(std::ostream &os, const Move &move) {
     else {
         os << "Move from ";
     }
-    os << move.from << " to " << move.to << ".";
+    print_square(os, move.from);
+    os << " to ";
+    print_square(os, move.to);
+    os << ".";
     return os;
 }

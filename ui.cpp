@@ -40,7 +40,8 @@ int main() {
 
     Position game;
 
-    LegendAI AI;
+    LegendAI white_AI;
+    LegendAI black_AI;
 
     while (true) {
         std::cout << game;
@@ -48,11 +49,11 @@ int main() {
         // game = game.play_move(prompt_move(game));
         // std::cout << "Computer move: " << AI.best_move(game) << "\n";
         if (game.get_turn() == WHITE) {
-            game = game.play_move(AI.best_move(game, 15));
+            game = game.play_move(white_AI.best_move(game, 0.5));
         }
         else {
             // game = game.play_move(prompt_move(game));
-            game = game.play_move(AI.best_move(game, 15));
+            game = game.play_move(black_AI.best_move(game, 0.1));
         }
     }
 
