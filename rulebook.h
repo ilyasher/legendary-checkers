@@ -57,7 +57,12 @@ uint8_t square_to_index(square_t square);
  * Returns a square_t a given number of indices over
  * from a given square_t.
  */
-square_t left_shift_square(square_t square, int8_t index);
+inline square_t left_shift_square(square_t square, int8_t index) {
+    if (index >= 0) {
+        return square << index;
+    }
+    return square >> -index;
+}
 
 /** Returns whether a given square on a given bitboard is on. */
 inline bool square_is_on(bit_board_t board, square_t square) {

@@ -8,6 +8,7 @@ uint8_t square_to_index(square_t square) {
         }
         square >>= 1;
     }
+    throw std::invalid_argument("Given square has no on bits.");
 }
 
 std::ostream & print_square(std::ostream &os, square_t square) {

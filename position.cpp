@@ -96,13 +96,6 @@ std::vector<Move> Position::get_all_legal_moves() const {
     return legal_moves;
 }
 
-square_t left_shift_square(square_t square, int8_t index) {
-    if (index >= 0) {
-        return square << index;
-    }
-    return square >> -index;
-}
-
 void Position::get_piece_moves(
     std::vector<Move> &legal_moves,
     bit_board_t piece_board,

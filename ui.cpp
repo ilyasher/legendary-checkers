@@ -45,15 +45,13 @@ int main() {
 
     while (true) {
         std::cout << game;
-        std::cout << "\n";
-        // game = game.play_move(prompt_move(game));
-        // std::cout << "Computer move: " << AI.best_move(game) << "\n";
+        std::cout << "\n\n";
         if (game.get_turn() == WHITE) {
-            game = game.play_move(white_AI.best_move(game, 0.5));
+            game = game.play_move(white_AI.best_move(game, 1));
         }
         else {
             // game = game.play_move(prompt_move(game));
-            game = game.play_move(black_AI.best_move(game, 0.1));
+            game = game.play_move(black_AI.best_move(game, 1));
         }
     }
 

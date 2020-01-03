@@ -9,6 +9,7 @@ LegendAI::MCTS_Node::MCTS_Node(Position *pos, MCTS_Node *parent) {
 
     this->num_visits = 0;
     this->total_score = 0;
+    this->visited_move_indices = 0;
 }
 
 LegendAI::LegendAI() {
@@ -50,10 +51,29 @@ score_t LegendAI::eval(Position *pos) {
 
 LegendAI::MCTS_Node *LegendAI::expand_node(MCTS_Node *node) {
 
-    std::vector<Move> all_moves = node->moves;
+    /* Choose a random move from the list of unplayed moves. */
+    int num_unplayed_moves = 0;
+    for (int i = 0; i < node->num_moves; i ++) {
+        if (square_index_to_bitboard(i) & ~node->visited_move_indices) {
+            num_unplayed_moves ++;
+        }
+    }
+    int random_index = random_engine.rand_range(num_unplayed_moves);
+    int move_index;
+    int unplayed_move_number = 0;
+    for (move_index = 0; move_index < node->num_moves; move_index ++) {
+        if (square_index_to_bitboard(move_index) & ~node->visited_move_indices) {
+            if (unplayed_move_number == random_index) {
+                break;
+            }
+            unplayed_move_number ++;
+        }
+    }
 
-    // TODO: Make this random.
-    Move move = all_moves[node->children.size()];
+    /* Record move as played */;
+    node->visited_move_indices |= square_index_to_bitboard(move_index);
+
+    Move move = node->moves[move_index];
 
     Position *new_position = new Position(node->position->play_move(move));
     MCTS_Node *new_node = new MCTS_Node(new_position, node);
@@ -127,18 +147,20 @@ void LegendAI::back_propogate(LegendAI::MCTS_Node *node, score_t score) {
 
 LegendAI::MCTS_Node *LegendAI::MCTS_Node::find_explored_branch(Position *pos) {
     if (*this->position == *pos) {
+        std::cout << "FOUND!!\n";
         this->parent = nullptr;
         return this;
     }
     MCTS_Node *return_value = nullptr;
     for (auto child : this->children) {
         MCTS_Node *node = child->find_explored_branch(pos);
-        if (node) {
+        if (node && !return_value) {
             return_value = node;
         }
     }
     delete this->position;
     delete this;
+
     return return_value;
 }
 
@@ -149,6 +171,10 @@ Move LegendAI::best_move(Position &pos, double time) {
     }
     else {
         game_tree = game_tree->find_explored_branch(pos_copy);
+        if (!game_tree) {
+            std::cout << "could not find subtree" << "\n";
+            game_tree = new MCTS_Node(pos_copy);
+        }
     }
 
     auto start_time = std::clock();
@@ -165,8 +191,8 @@ Move LegendAI::best_move(Position &pos, double time) {
     std::cout << "Performed " << num_runs << " runs\n";
 
     for (MCTS_Node *child : game_tree->children) {
-        std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", ";
-                  // << child->total_score << "\n";
+        std::cout << "Child: " << child->num_moves << ", " << child->num_visits << ", "
+                  << (child->total_score / child->num_moves) << "\n";
     }
 
     MCTS_Node *best_child_node = game_tree->best_child(0);
@@ -182,12 +208,4 @@ Move LegendAI::best_move(Position &pos, double time) {
         }
     }
     throw std::runtime_error("Something's horribly wrong.\n");
-}
-
-/* https://stackoverflow.com/questions/7560114/random-number-c-in-some-range */
-int rand_range(int max) {
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 eng(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(0, max); // define the range
-    return distr(eng);
 }

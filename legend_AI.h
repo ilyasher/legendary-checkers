@@ -21,6 +21,21 @@ const score_t BLACK_WIN = -100000;
 
 const double MIN_DOUBLE = std::numeric_limits<double>::lowest();
 
+/* https://stackoverflow.com/questions/7560114/random-number-c-in-some-range */
+struct RandomEngine {
+    std::random_device rd;
+    std::mt19937 eng;
+
+    RandomEngine() {
+        this->eng = std::mt19937(rd());
+    }
+
+    int rand_range(int max) {
+        std::uniform_int_distribution<> distr(0, max - 1);
+        return distr(eng);
+    }
+};
+
 class LegendAI {
 
     /** A node in the game tree. */
@@ -50,6 +65,12 @@ class LegendAI {
          * one move in this position.
          */
         std::vector<MCTS_Node *> children;
+
+        /**
+         * A number storing all move indices that are already visited.
+         * An index is visited if the corresponding bit is on.
+         */
+        uint64_t visited_move_indices;
 
         /** Constructor. */
         MCTS_Node(Position *pos, MCTS_Node *parent = nullptr);
@@ -84,6 +105,9 @@ class LegendAI {
      */
     MCTS_Node *game_tree;
 
+    /** Seeded random number generator. */
+    RandomEngine random_engine;
+
     /** Returns which node should be the next one to be further explored. */
     MCTS_Node *select_node(MCTS_Node *node);
 
@@ -107,10 +131,6 @@ public:
      * @param time The number of seconds given to make a decision.
      */
     Move best_move(Position &pos, double time = 0.5);
-
 };
-
-/** Returns a random number from 0 to `max`. */
-int rand_range(int max);
 
 #endif // LEGEND_AI_H
